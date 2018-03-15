@@ -21,20 +21,22 @@ module.exports = function proxy(host, userOptions) {
 
     // Skip proxy if filter is falsey.  Loose equality so filters can return
     // false, null, undefined, etc.
-    if (!container.options.filter(ctx)) {
-      return Promise.resolve(null).then(next);
-    }
-
-    return buildProxyReq(container)
-      .then(resolveProxyHost)
-      .then(decorateProxyReqOpts)
-      .then(resolveProxyReqPath)
-      .then(decorateProxyReqBody)
-      .then(prepareProxyReq)
-      .then(sendProxyRequest)
-      .then(copyProxyResHeadersToUserRes)
-      .then(decorateUserRes)
-      .then(sendUserRes)
-      .then(next);
+    return container.options.filter(ctx)
+      .then(execute => {
+        if (!execute) {
+          return Promise.resolve(null).then(next);
+        }
+        return buildProxyReq(container)
+          .then(resolveProxyHost)
+          .then(decorateProxyReqOpts)
+          .then(resolveProxyReqPath)
+          .then(decorateProxyReqBody)
+          .then(prepareProxyReq)
+          .then(sendProxyRequest)
+          .then(copyProxyResHeadersToUserRes)
+          .then(decorateUserRes)
+          .then(sendUserRes)
+          .then(next);
+      })
   };
 };
